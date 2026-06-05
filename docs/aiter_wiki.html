@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AITER — Codebase Wiki</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --border:#30363d;
+    --text:#e6edf3; --muted:#9aa7b4; --accent:#ff5b34; --accent2:#58a6ff;
+    --green:#3fb950; --yellow:#d29922; --purple:#bc8cff; --cyan:#39c5cf; --pink:#f778ba;
+    --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    line-height:1.6;font-size:15px}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,.mono{font-family:var(--mono);font-size:.88em}
+  code{background:#1f2733;padding:.1em .4em;border-radius:4px;color:var(--cyan)}
+  .wrap{display:flex;max-width:1500px;margin:0 auto;min-height:100vh}
+  /* sidebar */
+  nav{width:250px;flex-shrink:0;border-right:1px solid var(--border);
+    padding:22px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--panel)}
+  nav .brand{font-size:1.45em;font-weight:800;letter-spacing:.5px}
+  nav .brand span{color:var(--accent)}
+  nav .sub{color:var(--muted);font-size:.78em;margin:2px 0 18px}
+  nav button{display:block;width:100%;text-align:left;background:none;border:none;
+    color:var(--muted);padding:8px 12px;border-radius:7px;cursor:pointer;font-size:.92em;
+    margin-bottom:2px;transition:.12s}
+  nav button:hover{background:var(--panel2);color:var(--text)}
+  nav button.active{background:var(--accent);color:#fff;font-weight:600}
+  nav .grp{font-size:.7em;text-transform:uppercase;letter-spacing:1px;color:#5b6675;
+    margin:16px 0 6px 12px}
+  /* main */
+  main{flex:1;padding:34px 46px;max-width:1180px}
+  section{display:none;animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h1{font-size:1.9em;margin:0 0 4px;font-weight:800}
+  h2{font-size:1.3em;margin:34px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  h3{font-size:1.05em;margin:22px 0 8px;color:var(--accent2)}
+  p{color:#c9d4de}
+  .lead{color:var(--muted);font-size:1.05em;margin-bottom:8px}
+  /* pills / cards */
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .card h3{margin-top:0}
+  .card.accent{border-left:3px solid var(--accent)}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+  .stat .n{font-size:1.9em;font-weight:800;color:var(--accent)}
+  .stat .l{color:var(--muted);font-size:.8em;text-transform:uppercase;letter-spacing:.5px}
+  .tag{display:inline-block;font-size:.72em;font-weight:700;padding:2px 8px;border-radius:20px;
+    text-transform:uppercase;letter-spacing:.5px;vertical-align:middle}
+  .t-triton{background:#1f2f1f;color:var(--green);border:1px solid #2d4a2d}
+  .t-ck{background:#2a2440;color:var(--purple);border:1px solid #4a3d6e}
+  .t-asm{background:#3a2418;color:var(--accent);border:1px solid #5e3a22}
+  .t-opus{background:#16323a;color:var(--cyan);border:1px solid #1f4e58}
+  .t-py{background:#2a2a18;color:var(--yellow);border:1px solid #4a4a22}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9em}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.82em;text-transform:uppercase;letter-spacing:.5px}
+  tr:hover td{background:var(--panel2)}
+  pre{background:#0a0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+    overflow-x:auto;font-family:var(--mono);font-size:.84em;line-height:1.5;color:#d6deeb}
+  pre .c{color:#6a7684}    /* comment */
+  pre .k{color:var(--pink)}/* keyword */
+  pre .s{color:var(--green)}/* string */
+  pre .f{color:var(--accent2)}/* func */
+  pre .d{color:var(--yellow)}/* decorator */
+  .path{font-family:var(--mono);font-size:.82em;color:var(--cyan);background:#11161d;
+    padding:2px 7px;border-radius:5px;border:1px solid var(--border)}
+  ul.clean{list-style:none;padding-left:0}
+  ul.clean li{padding:6px 0 6px 24px;position:relative;border-bottom:1px solid #1c2330}
+  ul.clean li:before{content:"▸";position:absolute;left:4px;color:var(--accent)}
+  .note{background:#1a2330;border-left:3px solid var(--accent2);padding:10px 16px;border-radius:0 8px 8px 0;margin:14px 0;color:#c9d4de}
+  .warn{background:#2a2218;border-left:3px solid var(--yellow);padding:10px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+  /* flow diagram */
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:18px 0}
+  .fnode{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:12px 16px;
+    flex:1;min-width:135px;position:relative}
+  .fnode .ft{font-weight:700;font-size:.92em;margin-bottom:3px}
+  .fnode .fd{color:var(--muted);font-size:.78em}
+  .farrow{display:flex;align-items:center;color:var(--accent);font-size:1.5em;padding:0 6px}
+  .layers .layer{display:flex;align-items:center;gap:14px;background:var(--panel);
+    border:1px solid var(--border);border-radius:9px;padding:12px 18px;margin-bottom:10px}
+  .layers .lnum{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+  .layers .ltext{flex:1}
+  .layers .ltext b{display:block}
+  .layers .ltext span{color:var(--muted);font-size:.85em}
+  footer{color:#5b6675;font-size:.8em;margin-top:50px;padding-top:18px;border-top:1px solid var(--border)}
+  .kbd{font-family:var(--mono);background:#1f2733;border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 6px;font-size:.8em}
+  @media(max-width:880px){.wrap{flex-direction:column}nav{width:100%;height:auto;position:static}
+    main{padding:20px}.g2,.g3,.g4{grid-template-columns:1fr}.flow{flex-direction:column}.farrow{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <div class="brand">AI<span>TER</span></div>
+  <div class="sub">AI Tensor Engine for ROCm — Codebase Wiki</div>
+  <button class="active" data-s="overview">Overview</button>
+  <button data-s="architecture">Architecture</button>
+  <button data-s="jit">JIT Build System</button>
+  <button data-s="backends">Kernel Backends</button>
+  <button data-s="flow">Op Call Flow</button>
+  <button data-s="tuning">Tuning & Configs</button>
+  <div class="grp">Reference</div>
+  <button data-s="structure">Directory Map</button>
+  <button data-s="operators">Operator Catalog</button>
+  <button data-s="opus">Opus & Dev</button>
+  <button data-s="getstarted">Getting Started</button>
+</nav>
+
+<main>
+
+<!-- ===================== OVERVIEW ===================== -->
+<section id="overview" class="active">
+  <h1>AITER Codebase Wiki</h1>
+  <p class="lead">AMD's high-performance AI operator library — optimized GPU kernels for inference &amp; training on ROCm. Read once, navigate by tab.</p>
+
+  <div class="grid g4" style="margin:22px 0">
+    <div class="stat"><div class="n">465</div><div class="l">Python files</div></div>
+    <div class="stat"><div class="n">319</div><div class="l">Triton kernels</div></div>
+    <div class="stat"><div class="n">250</div><div class="l">C++/HIP sources</div></div>
+    <div class="stat"><div class="n">2810</div><div class="l">ASM <code>.co</code> binaries</div></div>
+  </div>
+
+  <div class="card accent">
+    <h3>What is AITER?</h3>
+    <p>AITER is a unified collection of production-ready GPU operators (attention, MoE, GEMM, normalization, quantization, communication) that framework developers integrate directly into their inference/training stacks. It is the <b>default kernel backend for LLM inference on AMD GPUs</b>, powering vLLM, SGLang, ATOM and JAX on ROCm.</p>
+  </div>
+
+  <h2>Core design principles</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Dual-level API</h3><p>Every operator is callable from both <b>Python</b> (PyTorch tensors) and <b>C++</b>. Python is the primary integration surface.</p></div>
+    <div class="card"><h3>Multi-backend</h3><p>Each op may have several implementations — <span class="tag t-triton">Triton</span> <span class="tag t-ck">CK</span> <span class="tag t-asm">ASM</span> <span class="tag t-opus">Opus</span> — selected at runtime by shape/hardware.</p></div>
+    <div class="card"><h3>JIT-first</h3><p>C++/HIP kernels are compiled <b>on demand</b> on first call and cached, keeping the install lightweight. An AOT path exists for prebuilt deployments.</p></div>
+    <div class="card"><h3>Autotuned</h3><p>Per-shape best configs ship as CSV files in <span class="path">aiter/configs/</span> and are looked up at runtime to pick the fastest kernel instance.</p></div>
+  </div>
+
+  <h2>Where things live (30-second map)</h2>
+  <table>
+    <tr><th>Path</th><th>Role</th></tr>
+    <tr><td><span class="path">aiter/</span></td><td>Python package — public API, op wrappers, JIT engine, tuned configs</td></tr>
+    <tr><td><span class="path">aiter/ops/</span></td><td>One module per operator family; <code>@compile_ops</code> bindings + Triton kernels</td></tr>
+    <tr><td><span class="path">csrc/</span></td><td>C++/HIP kernel sources, CK instances, pybind glue, Opus library</td></tr>
+    <tr><td><span class="path">hsa/</span></td><td>Hand-tuned ASM kernels as prebuilt <code>.co</code> code-object binaries, per gfx arch</td></tr>
+    <tr><td><span class="path">op_tests/</span></td><td>75 standalone correctness/benchmark tests, one per operator</td></tr>
+    <tr><td><span class="path">docs/</span></td><td>Sphinx docs, tutorials, this wiki</td></tr>
+  </table>
+
+  <div class="note">Supported hardware: <b>MI300X / MI325X</b> (gfx942, CDNA3) fully supported; <b>MI350 / MI355X</b> (gfx950, CDNA4) supported.</div>
+</section>
+
+<!-- ===================== ARCHITECTURE ===================== -->
+<section id="architecture">
+  <h1>Architecture</h1>
+  <p class="lead">AITER is a layered stack: a stable Python/C++ API on top, a JIT compilation engine in the middle, and four interchangeable kernel backends at the bottom.</p>
+
+  <h2>The layer stack</h2>
+  <div class="layers">
+    <div class="layer"><div class="lnum">1</div><div class="ltext"><b>Public API</b><span><span class="path">aiter/__init__.py</span> re-exports every operator into the flat <code>aiter.*</code> namespace (e.g. <code>aiter.gemm_a8w8</code>, <code>aiter.flash_attn_func</code>).</span></div></div>
+    <div class="layer"><div class="lnum">2</div><div class="ltext"><b>Operator wrappers</b><span><span class="path">aiter/ops/*.py</span> + high-level orchestrators like <span class="path">aiter/fused_moe.py</span>, <span class="path">aiter/mla.py</span>. Pick backend, prep tensors, dispatch.</span></div></div>
+    <div class="layer"><div class="lnum">3</div><div class="ltext"><b>JIT engine</b><span><span class="path">aiter/jit/core.py</span> — the <code>@compile_ops</code> decorator builds &amp; loads the right native module on first call, then caches it.</span></div></div>
+    <div class="layer"><div class="lnum">4</div><div class="ltext"><b>Binding layer</b><span><span class="path">csrc/pybind/*_pybind.cu</span> (pybind11) and <span class="path">csrc/cpp_itfs/</span> (ctypes/AOT interfaces) expose native functions to Python.</span></div></div>
+    <div class="layer"><div class="lnum">5</div><div class="ltext"><b>Kernel backends</b><span>Triton JIT • Composable Kernel (CK) templates • hand-tuned ASM <code>.co</code> • Opus HIP kernels — the actual GPU compute.</span></div></div>
+  </div>
+
+  <h2>Backend selection at a glance</h2>
+  <table>
+    <tr><th>Backend</th><th>Source</th><th>Built by</th><th>Best for</th></tr>
+    <tr><td><span class="tag t-triton">Triton</span></td><td><span class="path">aiter/ops/triton/</span></td><td>Triton JIT (runtime)</td><td>Portable, rapidly-iterated kernels; default on Windows / Triton-only mode</td></tr>
+    <tr><td><span class="tag t-ck">CK</span></td><td><span class="path">csrc/ck_*/</span></td><td>hipcc via JIT/AOT</td><td>Peak GEMM / MoE throughput from templated Composable Kernel instances</td></tr>
+    <tr><td><span class="tag t-asm">ASM</span></td><td><span class="path">hsa/gfx*/</span> + <span class="path">csrc/py_itfs_cu/asm_*.cu</span></td><td>Prebuilt <code>.co</code></td><td>Hand-optimized hot paths (attention, fused MoE, all-reduce)</td></tr>
+    <tr><td><span class="tag t-opus">Opus</span></td><td><span class="path">csrc/include/opus/</span>, <span class="path">csrc/opus_gemm/</span></td><td>hipcc via JIT</td><td>New HIP kernels written with the lightweight Opus DSL (build-time optimized)</td></tr>
+  </table>
+
+  <h2>Two execution modes</h2>
+  <div class="grid g2">
+    <div class="card"><h3>JIT (default)</h3><p>On <code>import aiter</code>, only Python loads. A native module compiles the first time an op needing it is called, then is cached on disk &amp; in-process. Lightweight install, slower first call.</p></div>
+    <div class="card"><h3>AOT</h3><p><span class="path">aiter/aot/</span> + <code>AITER_AOT_IMPORT=1</code>. Kernels are prebuilt at install time for fast, reproducible cold-start in production/containers.</p></div>
+  </div>
+  <div class="warn"><b>Triton-only mode</b> (<code>AITER_TRITON_ONLY=1</code>, always on Windows): exposes only Triton ops and skips all CK/HIP JIT — useful when there's no C++ toolchain.</div>
+</section>
+
+<!-- ===================== JIT ===================== -->
+<section id="jit">
+  <h1>JIT Build System</h1>
+  <p class="lead">The heart of AITER. <span class="path">aiter/jit/core.py</span> turns a bare Python function stub into a compiled, cached, type-checked native operator — transparently.</p>
+
+  <h2>The <code>@compile_ops</code> contract</h2>
+  <p>An op module declares a stub with no body. The decorator owns everything: locating build args, compiling on cache-miss, loading the module, and binding the real native function over the stub.</p>
+  <pre><span class="c"># aiter/ops/gemm_op_a8w8.py</span>
+<span class="d">@compile_ops</span>(<span class="s">"module_gemm_a8w8"</span>, fc_name=<span class="s">"gemm_a8w8"</span>, gen_fake=gen_gemm_a8w8_ck_fake_tensors)
+<span class="k">def</span> <span class="f">gemm_a8w8_ck</span>(XQ, WQ, x_scale, w_scale, Out, bias=<span class="k">None</span>, splitK=<span class="k">0</span>) -> Tensor: ...
+                                              <span class="c"># ↑ empty body — filled in by JIT</span></pre>
+
+  <h3>Decorator parameters</h3>
+  <table>
+    <tr><th>Param</th><th>Meaning</th></tr>
+    <tr><td><code>_md_name</code></td><td>Native module name to build/load (e.g. <code>module_gemm_a8w8</code>)</td></tr>
+    <tr><td><code>fc_name</code></td><td>Symbol to fetch from the built module (defaults to the Python fn name)</td></tr>
+    <tr><td><code>gen_func</code></td><td>Optional: compute per-call build args (for shape-specialized builds)</td></tr>
+    <tr><td><code>gen_fake</code></td><td>Fake/meta-tensor impl so the op composes with <code>torch.compile</code></td></tr>
+    <tr><td><code>ffi_type</code></td><td><code>"pybind"</code> (default) or <code>"ctypes"</code> binding style</td></tr>
+  </table>
+
+  <h2>What happens on first call</h2>
+  <div class="flow">
+    <div class="fnode"><div class="ft">1 · Call</div><div class="fd">User calls <code>gemm_a8w8_ck(...)</code></div></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><div class="ft">2 · get_module</div><div class="fd">Cache lookup in <code>__mds[md]</code></div></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><div class="ft">3 · Miss?</div><div class="fd">Raise <code>ModuleNotFoundError</code> → build path</div></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><div class="ft">4 · build_module</div><div class="fd">Collect srcs/flags via <code>get_args_of_build</code>, run hipcc</div></div>
+    <div class="farrow">→</div>
+    <div class="fnode"><div class="ft">5 · Bind &amp; cache</div><div class="fd">Load <code>.so</code>, <code>getattr(module, fc_name)</code>, store in cache</div></div>
+  </div>
+
+  <h3>Key functions in <span class="path">aiter/jit/core.py</span></h3>
+  <table>
+    <tr><th>Function</th><th>Line</th><th>Role</th></tr>
+    <tr><td><code>compile_ops(...)</code></td><td>1409</td><td>The decorator factory — wraps every native op</td></tr>
+    <tr><td><code>build_module(...)</code></td><td>728</td><td>Invokes <code>_jit_compile</code> (hipcc) with sources, flags, blob-gen commands</td></tr>
+    <tr><td><code>get_module(md_name)</code></td><td>586</td><td>Returns a cached module or triggers a load</td></tr>
+    <tr><td><code>mp_lock(...)</code></td><td>46</td><td><code>FileBaton</code>-based lock so concurrent processes don't double-build</td></tr>
+    <tr><td><code>clone_3rdparty(...)</code></td><td>595</td><td>Lazily clones pinned 3rd-party deps (e.g. CK) needed for a build</td></tr>
+    <tr><td><code>class AITER_CONFIG</code></td><td>128</td><td>Resolves all the tuned-config CSV paths (env-overridable)</td></tr>
+  </table>
+
+  <div class="note">Build args per module are declared in <span class="path">aiter/jit/optCompilerConfig.json</span> and resolved by <code>get_args_of_build</code> — sources, extra include dirs, cc/hip flags, codegen ("blob gen") commands, and link flags.</div>
+
+  <h3>Runtime safety &amp; ergonomics</h3>
+  <ul class="clean">
+    <li><b>Auto signature/type-check</b> — on first bind the decorator parses the pybind docstring to reconstruct a Python signature and validate tensor args.</li>
+    <li><b>torch.compile guard</b> — <code>torch_compile_guard</code> + <code>gen_fake</code> let JIT ops trace cleanly under Dynamo without recompiling kernels.</li>
+    <li><b>Multiprocess-safe</b> — <code>FileBaton</code> locks serialize the first build across ranks; late processes wait then load.</li>
+    <li><b>Rebuild hook</b> — <code>AITER_REBUILD=1</code> forces a one-time recompile of each touched module.</li>
+  </ul>
+</section>
+
+<!-- ===================== BACKENDS ===================== -->
+<section id="backends">
+  <h1>Kernel Backends</h1>
+  <p class="lead">One operator, many implementations. AITER's value is curating the fastest kernel per shape/arch across four very different technologies.</p>
+
+  <h2><span class="tag t-triton">Triton</span> &nbsp;Portable Python-authored kernels</h2>
+  <p>Located under <span class="path">aiter/ops/triton/</span> (319 files). Organized by domain: <code>attention/</code>, <code>gemm/</code>, <code>moe/</code>, <code>normalization/</code>, <code>quant/</code>, <code>rope/</code>, <code>comms/</code>, plus <code>_triton_kernels/</code> and <code>gluon/</code> (Gluon-dialect kernels). Compiled by Triton's own JIT at runtime; no hipcc needed. This is the only backend in Triton-only / Windows mode.</p>
+
+  <h2><span class="tag t-ck">CK</span> &nbsp;Composable Kernel templates</h2>
+  <p>Each <span class="path">csrc/ck_*/</span> directory is a family of templated C++ kernel <i>instances</i> (e.g. <span class="path">ck_gemm_a8w8/</span>, <span class="path">ck_gemm_a4w4_blockscale/</span>, <span class="path">ck_batched_gemm_bf16/</span>, <span class="path">ck_tile_gemm_moe_2stages/</span>). A codegen step ("blob gen") emits the specific instances needed, then hipcc builds them via the JIT. CK depends on the pinned Composable Kernel submodule, cloned on demand.</p>
+
+  <h2><span class="tag t-asm">ASM</span> &nbsp;Hand-tuned code objects</h2>
+  <p>The <span class="path">hsa/</span> tree holds <b>2810 prebuilt <code>.co</code></b> AMDGPU code-object binaries, partitioned by architecture: <span class="path">hsa/gfx942/</span> (CDNA3), <span class="path">hsa/gfx950/</span> (CDNA4), <span class="path">hsa/gfx1250/</span>. Categories include <code>fmha_v3_fwd/bwd</code> (attention), <code>fmoe*</code> (fused MoE), <code>bf16gemm/</code>, <code>f4gemm/</code>, and fused all-reduce+norm. They're launched from <span class="path">csrc/py_itfs_cu/asm_*.cu</span> wrappers and the <span class="path">csrc/cpp_itfs/hsaco_launcher.py</span>. CSV manifests (e.g. <span class="path">fmha_bwd_dqdkdv.csv</span>) map shapes → the right <code>.co</code>.</p>
+
+  <h2><span class="tag t-opus">Opus</span> &nbsp;Lightweight HIP DSL</h2>
+  <p>A single-header C++ template library (<span class="path">csrc/include/opus/opus.hpp</span>) for authoring new HIP kernels with vectorized load/store, MFMA wrappers and layout helpers — positioned <i>above</i> raw HIP but <i>below</i> CK/CUTLASS in complexity, with a strong focus on <b>fast compile times</b>. Used by newer ops (<code>moe_sorting_opus</code>, <code>pa_sparse_prefill_opus</code>) and <span class="path">csrc/opus_gemm/</span>. See the <b>Opus &amp; Dev</b> tab.</p>
+
+  <div class="note">A single high-level op like <b>Fused MoE</b> (<span class="path">aiter/fused_moe.py</span>) can dispatch to ASM, CK, Opus <i>or</i> FlyDSL kernels depending on dtype (A8W8/A4W4/MXFP4), shape and env flags — defaulting to Opus MoE sorting unless <code>AITER_USE_CK_MOE_SORTING=1</code>.</div>
+</section>
+
+<!-- ===================== FLOW ===================== -->
+<section id="flow">
+  <h1>Op Call Flow — End to End</h1>
+  <p class="lead">Tracing one quantized GEMM call from Python down to a GPU kernel.</p>
+
+  <h2>The journey of <code>aiter.gemm_a8w8(...)</code></h2>
+  <div class="layers">
+    <div class="layer"><div class="lnum">1</div><div class="ltext"><b>User code</b><span>Calls <code>aiter.gemm_a8w8(XQ, WQ, x_scale, w_scale)</code> — exported from <span class="path">aiter/ops/gemm_op_a8w8.py</span>.</span></div></div>
+    <div class="layer"><div class="lnum">2</div><div class="ltext"><b>Wrapper picks an instance</b><span>The high-level wrapper consults the tuned CSV (<span class="path">a8w8_tuned_gemm.csv</span>) for this (M,N,K) to choose CK vs ASM vs splitK, pads M, allocates <code>Out</code>.</span></div></div>
+    <div class="layer"><div class="lnum">3</div><div class="ltext"><b>@compile_ops stub</b><span>Calls <code>gemm_a8w8_ck(...)</code>. Decorator checks the module cache for <code>module_gemm_a8w8</code>.</span></div></div>
+    <div class="layer"><div class="lnum">4</div><div class="ltext"><b>JIT build (first time only)</b><span><code>build_module</code> reads <span class="path">optCompilerConfig.json</span>, runs blob-gen to emit CK instances, compiles with hipcc → <code>.so</code>. Subsequent calls skip straight to load.</span></div></div>
+    <div class="layer"><div class="lnum">5</div><div class="ltext"><b>pybind bridge</b><span><span class="path">csrc/pybind/gemm_a8w8_pybind.cu</span> exposes <code>gemm_a8w8</code>; decorator does <code>getattr(module, "gemm_a8w8")</code>.</span></div></div>
+    <div class="layer"><div class="lnum">6</div><div class="ltext"><b>GPU kernel runs</b><span>The CK (or ASM) kernel executes on the AMD GPU; result written into <code>Out</code> and returned as a torch tensor.</span></div></div>
+  </div>
+
+  <h2>How an op file is structured</h2>
+  <pre><span class="c"># aiter/ops/gemm_op_a8w8.py — the recurring pattern</span>
+<span class="k">def</span> <span class="f">gen_..._fake_tensors</span>(...):  <span class="c"># meta impl for torch.compile</span>
+    <span class="k">return</span> Out
+
+<span class="d">@compile_ops</span>(<span class="s">"module_gemm_a8w8"</span>, fc_name=<span class="s">"gemm_a8w8"</span>, gen_fake=...)
+<span class="k">def</span> <span class="f">gemm_a8w8_ck</span>(...) -> Tensor: ...    <span class="c"># native stub</span>
+
+<span class="c"># a public Python orchestrator selects instance from tuned CSV,</span>
+<span class="c"># then calls the stub(s). Exported via aiter/__init__.py</span></pre>
+
+  <div class="note">The same three-part shape — <b>fake-tensor fn → <code>@compile_ops</code> stub → orchestrator</b> — recurs across nearly all 43 op modules in <span class="path">aiter/ops/</span>. Learn it once and every operator reads the same way.</div>
+</section>
+
+<!-- ===================== TUNING ===================== -->
+<section id="tuning">
+  <h1>Tuning &amp; Configs</h1>
+  <p class="lead">AITER ships pre-measured "best kernel per shape" tables so production picks the fastest instance with zero runtime search.</p>
+
+  <h2>The config directory</h2>
+  <p><span class="path">aiter/configs/</span> holds 19 CSVs in <code>tuned</code> / <code>untuned</code> pairs plus <span class="path">model_configs/</span>. Paths are resolved (and env-overridable) by <code>class AITER_CONFIG</code> in <span class="path">aiter/jit/core.py</span>.</p>
+  <table>
+    <tr><th>File</th><th>Drives</th><th>Env override</th></tr>
+    <tr><td><code>a8w8_tuned_gemm.csv</code></td><td>INT8/FP8 A8W8 GEMM instance + splitK</td><td><code>AITER_CONFIG_GEMM_A8W8</code></td></tr>
+    <tr><td><code>a4w4_blockscale_tuned_gemm.csv</code></td><td>FP4 A4W4 block-scaled GEMM</td><td><code>AITER_CONFIG_GEMM_A4W4</code></td></tr>
+    <tr><td><code>a8w8_blockscale_tuned_gemm.csv</code></td><td>Block-scaled A8W8 GEMM</td><td><code>AITER_CONFIG_GEMM_A8W8_BLOCKSCALE</code></td></tr>
+    <tr><td><code>tuned_fmoe.csv</code></td><td>Fused MoE kernel selection</td><td><code>AITER_CONFIG_FMOE</code></td></tr>
+    <tr><td><code>*_tuned_batched_gemm.csv</code></td><td>Batched GEMM (A8W8 / BF16)</td><td><code>AITER_CONFIG_*_BATCHED_GEMM</code></td></tr>
+    <tr><td><code>asm_a8w8_gemm.csv</code></td><td>ASM GEMM shape → <code>.co</code> mapping</td><td>—</td></tr>
+  </table>
+
+  <h3>tuned vs untuned</h3>
+  <div class="grid g2">
+    <div class="card"><h3><code>*_tuned_*.csv</code></h3><p>The authoritative lookup used at runtime: each row maps a problem shape to the winning kernel/config. Curated &amp; checked in.</p></div>
+    <div class="card"><h3><code>*_untuned_*.csv</code></h3><p>Candidate shape lists fed to the offline autotuning pipeline, which benchmarks them and emits the tuned table. See <span class="path">docs/autotuning_pipeline.md</span>.</p></div>
+  </div>
+
+  <div class="note">Set <code>AITER_LOG_TUNED_CONFIG=1</code> to log which tuned entry was chosen for a given call — invaluable when debugging a "why is this shape slow?" question.</div>
+</section>
+
+<!-- ===================== STRUCTURE ===================== -->
+<section id="structure">
+  <h1>Directory Map</h1>
+  <p class="lead">The full repo, annotated. Start at <span class="path">aiter/</span> for Python, <span class="path">csrc/</span> for native code.</p>
+
+  <h2>Python package — <span class="path">aiter/</span></h2>
+  <table>
+    <tr><th>Path</th><th>Purpose</th></tr>
+    <tr><td><code>__init__.py</code></td><td>Public namespace — re-exports every op; sets up logging &amp; mode flags</td></tr>
+    <tr><td><code>ops/</code></td><td>43 op modules + <code>triton/</code>, <code>flydsl/</code>, <code>opus/</code>, <code>torch_ref/</code> subpackages</td></tr>
+    <tr><td><code>jit/</code></td><td><code>core.py</code> (JIT engine), <code>optCompilerConfig.json</code>, <code>utils/</code> (chip_info, cpp_extension, FileBaton), <code>flydsl_cache/</code></td></tr>
+    <tr><td><code>configs/</code></td><td>Tuned/untuned CSVs + <code>model_configs/</code></td></tr>
+    <tr><td><code>aot/</code></td><td>Ahead-of-time op definitions (pa, mla decode, sampling, triton, flydsl)</td></tr>
+    <tr><td><code>fused_moe.py</code>, <code>mla.py</code>, <code>tuned_gemm.py</code></td><td>High-level multi-backend orchestrators</td></tr>
+    <tr><td><code>utility/</code>, <code>dist/</code></td><td>dtypes &amp; helpers; distributed utilities</td></tr>
+  </table>
+
+  <h2>Native sources — <span class="path">csrc/</span></h2>
+  <table>
+    <tr><th>Path</th><th>Purpose</th></tr>
+    <tr><td><code>ck_*/</code> (11 dirs)</td><td>Composable Kernel instance families (GEMM, batched GEMM, blockscale, MoE 2-stage, deepgemm)</td></tr>
+    <tr><td><code>cktile_*/</code>, <code>ck_tile_*/</code></td><td>ck_tile-based GEMM / MoE variants</td></tr>
+    <tr><td><code>kernels/</code></td><td>Standalone <code>.cu</code> HIP kernels (activation, cache, rope, conv1d, all-reduce, fused)</td></tr>
+    <tr><td><code>pybind/</code></td><td>pybind11 modules (<code>*_pybind.cu</code>) — one per native module, plus <code>*_tune_pybind.cu</code> for tuning entry points</td></tr>
+    <tr><td><code>cpp_itfs/</code></td><td>Interface layer: ctypes/AOT glue, <code>hsaco_launcher.py</code>, mha/mla/pa/moe wrappers, <code>torch_utils.py</code></td></tr>
+    <tr><td><code>py_itfs_cu/</code></td><td>ASM kernel launch wrappers (<code>asm_gemm_*.cu</code>, <code>asm_mha_*.cu</code>, <code>asm_fmoe.cu</code>)</td></tr>
+    <tr><td><code>py_itfs_ck/</code></td><td>Python-facing CK interface shims</td></tr>
+    <tr><td><code>include/</code></td><td>Shared headers — dtypes, dispatch utils, attention, gemm, <code>opus/</code>, <code>ck_tile/</code></td></tr>
+    <tr><td><code>opus_gemm/</code></td><td>GEMM kernels written with the Opus DSL</td></tr>
+  </table>
+
+  <h2>Other top-level</h2>
+  <table>
+    <tr><td><code>hsa/</code></td><td>Prebuilt ASM <code>.co</code> binaries by arch (gfx942/gfx950/gfx1250) + <code>codegen.py</code></td></tr>
+    <tr><td><code>op_tests/</code></td><td>75 <code>test_*.py</code> + <code>op_benchmarks/</code>, <code>opus/</code>, <code>multigpu_tests/</code>, <code>flydsl_tests/</code></td></tr>
+    <tr><td><code>3rdparty/</code></td><td>Submodules (Composable Kernel, etc.)</td></tr>
+    <tr><td><code>gradlib/</code></td><td>GEMM tuning library</td></tr>
+    <tr><td><code>setup.py</code></td><td>Build/install — drives optional triton install &amp; AOT prebuild</td></tr>
+  </table>
+</section>
+
+<!-- ===================== OPERATORS ===================== -->
+<section id="operators">
+  <h1>Operator Catalog</h1>
+  <p class="lead">The 43 modules in <span class="path">aiter/ops/</span>, grouped by domain. Each has a matching <code>op_tests/test_*.py</code>.</p>
+
+  <div class="grid g2">
+    <div class="card"><h3>Attention</h3>
+      <ul class="clean">
+        <li><code>attention.py</code> — paged attention (rocm / ragged / v1), Gluon decode</li>
+        <li><code>mha.py</code>, <code>mhc.py</code> — multi-head attention fwd/bwd</li>
+        <li><code>mla.py</code> (top-level) — Multi-head Latent Attention (DeepSeek)</li>
+        <li><code>cache.py</code> — KV-cache write / reshape</li>
+      </ul></div>
+    <div class="card"><h3>GEMM</h3>
+      <ul class="clean">
+        <li><code>gemm_op_a8w8.py</code> — INT8/FP8 (ck, bpreshuffle, cktile)</li>
+        <li><code>gemm_op_a4w4.py</code> — FP4 block-scaled</li>
+        <li><code>gemm_op_a16w16.py</code> — BF16/FP16</li>
+        <li><code>batched_gemm_op_*.py</code>, <code>deepgemm.py</code></li>
+      </ul></div>
+    <div class="card"><h3>MoE</h3>
+      <ul class="clean">
+        <li><code>moe_op.py</code> — fused MoE kernels</li>
+        <li><code>moe_sorting.py</code> / <code>moe_sorting_opus.py</code></li>
+        <li><code>fused_moe.py</code> (top-level orchestrator)</li>
+        <li><code>topk.py</code>, <code>topk_plain.py</code></li>
+      </ul></div>
+    <div class="card"><h3>Normalization &amp; Quant</h3>
+      <ul class="clean">
+        <li><code>rmsnorm.py</code>, <code>norm.py</code>, <code>groupnorm.py</code></li>
+        <li><code>quant.py</code>, <code>gated_rmsnorm_fp8_group_quant.py</code></li>
+        <li><code>fused_qk_norm_rope_cache_quant.py</code> (fused QK-norm+RoPE+cache+quant)</li>
+      </ul></div>
+    <div class="card"><h3>Position &amp; Misc compute</h3>
+      <ul class="clean">
+        <li><code>rope.py</code>, <code>pos_encoding.py</code> — rotary embeddings</li>
+        <li><code>activation.py</code>, <code>aiter_operator.py</code> (elementwise)</li>
+        <li><code>causal_conv1d.py</code>, <code>chunk_gated_delta_rule_fwd_h.py</code></li>
+        <li><code>sample.py</code>, <code>sampling.py</code> — token sampling</li>
+      </ul></div>
+    <div class="card"><h3>Communication</h3>
+      <ul class="clean">
+        <li><code>communication.py</code>, <code>custom_all_reduce.py</code></li>
+        <li><code>quick_all_reduce.py</code></li>
+        <li><code>triton/comms/</code> — Iris GPU-initiated reduce-scatter / all-gather</li>
+      </ul></div>
+  </div>
+
+  <h2>Running an operator test</h2>
+  <pre><span class="c"># each op is independently testable</span>
+python3 op_tests/test_mha.py
+python3 op_tests/test_mla.py
+python3 op_tests/test_moe.py
+python3 op_tests/test_gemm_a8w8.py
+ls op_tests/test_*.py    <span class="c"># 75 tests total</span></pre>
+</section>
+
+<!-- ===================== OPUS ===================== -->
+<section id="opus">
+  <h1>Opus &amp; Kernel Development</h1>
+  <p class="lead">Opus is AITER's in-house DSL for authoring HIP kernels quickly — with a defining obsession on compile-time.</p>
+
+  <h2>What Opus is</h2>
+  <p><b>opus</b> = "AI <b>op</b>erator micro<b>u</b> <b>s</b>td". A single header, <span class="path">csrc/include/opus/opus.hpp</span>, inspired by ck_tile and CUTLASS/cute but deliberately minimal. Just <code>#include "opus/opus.hpp"</code> — no separate build step.</p>
+
+  <div class="grid g2">
+    <div class="card"><h3>What it gives you</h3>
+      <ul class="clean">
+        <li>AMDGPU data-type declaration &amp; conversion</li>
+        <li>Automated vectorized buffer load/store dispatch</li>
+        <li>MFMA matrix-core wrappers (swap MFMA types with minimal edits)</li>
+        <li>Device-side utility functions</li>
+        <li>Optional lightweight layout abstractions for index math</li>
+      </ul></div>
+    <div class="card"><h3>What it deliberately is NOT</h3>
+      <ul class="clean">
+        <li>No prebuilt GEMM/attention kernels (use CK or AITER)</li>
+        <li>No reusable device pipelines</li>
+        <li>No unified <code>tensor</code> class — providers &amp; layouts kept separate</li>
+        <li>Not a full arbitrary-transform layout system</li>
+      </ul></div>
+  </div>
+  <p>Positioning: <b>above</b> hand-written HIP, <b>below</b> ck/CUTLASS. Claimed up to <b>61× faster builds</b> than a standard torch extension build.</p>
+
+  <div class="note">Two skills assist Opus work: <b>opus-kernel-best-practice</b> (compile-time optimization for individual kernels) and <b>opus-module-build-optimization</b> (module-level first-call build-wall tuning). Examples live in <span class="path">op_tests/opus/</span>.</div>
+
+  <h2>Adding a new native operator (the pattern)</h2>
+  <div class="layers">
+    <div class="layer"><div class="lnum">1</div><div class="ltext"><b>Write the kernel</b><span>Add HIP/CK/Opus source under <span class="path">csrc/</span> (e.g. <code>kernels/</code> or <code>opus_gemm/</code>).</span></div></div>
+    <div class="layer"><div class="lnum">2</div><div class="ltext"><b>Expose via pybind</b><span>Add a <code>*_pybind.cu</code> in <span class="path">csrc/pybind/</span> binding your function name.</span></div></div>
+    <div class="layer"><div class="lnum">3</div><div class="ltext"><b>Register build args</b><span>Add a module entry to <span class="path">aiter/jit/optCompilerConfig.json</span> (sources, flags, includes).</span></div></div>
+    <div class="layer"><div class="lnum">4</div><div class="ltext"><b>Declare the Python stub</b><span>New file in <span class="path">aiter/ops/</span>: a <code>gen_fake</code>, an <code>@compile_ops(...)</code> stub, optional orchestrator. Export from <code>__init__.py</code>.</span></div></div>
+    <div class="layer"><div class="lnum">5</div><div class="ltext"><b>Add a test</b><span>Create <span class="path">op_tests/test_yourop.py</span> validating against a torch reference.</span></div></div>
+  </div>
+  <p>See <span class="path">CONTRIBUTE.md</span> and <span class="path">docs/isa_kernel_optimization.md</span> for full conventions.</p>
+</section>
+
+<!-- ===================== GET STARTED ===================== -->
+<section id="getstarted">
+  <h1>Getting Started</h1>
+
+  <h2>Install</h2>
+  <pre><span class="c"># clone with submodules (CK lives in 3rdparty/)</span>
+git clone --recursive https://github.com/ROCm/aiter.git
+cd aiter
+python3 setup.py develop      <span class="c"># installs triton automatically</span></pre>
+  <p>Forgot <code>--recursive</code>? Run <code>git submodule sync &amp;&amp; git submodule update --init --recursive</code>.</p>
+
+  <h2>Useful environment flags</h2>
+  <table>
+    <tr><th>Variable</th><th>Effect</th></tr>
+    <tr><td><code>AITER_TRITON_ONLY=1</code></td><td>Expose only Triton ops; skip all CK/HIP JIT (auto on Windows)</td></tr>
+    <tr><td><code>AITER_AOT_IMPORT=1</code></td><td>Use ahead-of-time prebuilt kernels instead of JIT</td></tr>
+    <tr><td><code>AITER_REBUILD=1</code></td><td>Force one-time recompile of touched native modules</td></tr>
+    <tr><td><code>AITER_LOG_LEVEL=DEBUG</code></td><td>Verbose logging (also <code>AITER_LOG_MORE=1</code>)</td></tr>
+    <tr><td><code>AITER_LOG_TUNED_CONFIG=1</code></td><td>Log which tuned-config row was selected per call</td></tr>
+    <tr><td><code>ENABLE_CK=0</code></td><td>Disable the CK backend</td></tr>
+    <tr><td><code>AITER_ENABLE_EXPERIMENTAL=1</code></td><td>Turn on experimental code paths</td></tr>
+    <tr><td><code>AITER_USE_SYSTEM_TRITON=1</code></td><td>Keep your existing triton install during setup</td></tr>
+  </table>
+
+  <h2>First call sanity check</h2>
+  <pre><span class="k">import</span> torch, aiter
+<span class="c"># first invocation JIT-builds module_gemm_a8w8 (slow), then caches it</span>
+out = aiter.gemm_a8w8(XQ, WQ, x_scale, w_scale)</pre>
+
+  <h2>Reading paths to know</h2>
+  <ul class="clean">
+    <li><span class="path">aiter/__init__.py</span> — what's public</li>
+    <li><span class="path">aiter/jit/core.py</span> — how anything gets built</li>
+    <li><span class="path">aiter/ops/&lt;family&gt;.py</span> — an operator's Python surface</li>
+    <li><span class="path">aiter/configs/*_tuned_*.csv</span> — which kernel wins for a shape</li>
+    <li><span class="path">op_tests/test_&lt;op&gt;.py</span> — runnable usage example</li>
+    <li><span class="path">CONTRIBUTE.md</span> — contribution workflow</li>
+  </ul>
+
+  <footer>
+    AITER codebase wiki — generated from a source review of the <code>coketaste/codebase-wiki</code> branch.
+    Self-contained single HTML file; open in any browser. Verify specifics against the live source as the
+    codebase evolves. Approach inspired by Anthropic's "The unreasonable effectiveness of HTML."
+  </footer>
+</section>
+
+</main>
+</div>
+
+<script>
+  const btns=document.querySelectorAll('nav button');
+  const secs=document.querySelectorAll('section');
+  function show(id){
+    secs.forEach(s=>s.classList.toggle('active',s.id===id));
+    btns.forEach(b=>b.classList.toggle('active',b.dataset.s===id));
+    if(location.hash!=='#'+id) history.replaceState(null,'','#'+id);
+    window.scrollTo(0,0);
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.s)));
+  // deep-link support
+  const start=location.hash.replace('#','');
+  if(start&&document.getElementById(start)) show(start);
+  // keyboard: left/right arrows cycle tabs
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT')return;
+    const ids=[...btns].map(b=>b.dataset.s);
+    let i=ids.indexOf([...btns].find(b=>b.classList.contains('active')).dataset.s);
+    if(e.key==='ArrowRight'){show(ids[(i+1)%ids.length])}
+    if(e.key==='ArrowLeft'){show(ids[(i-1+ids.length)%ids.length])}
+  });
+</script>
+</body>
+</html>
